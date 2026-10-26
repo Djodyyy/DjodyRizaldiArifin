@@ -3,37 +3,37 @@
    ========================================================= */
 const PROJECTS = [
   {
+    title: "Shipment, Invoice & Approval System",
+    desc: "Production system for a logistics company: shipment records, split taxable/non-taxable invoicing, per-invoice and consolidated payments, and PDF/Excel/Word exports. Protected with CSRF validation, server-side role checks, row locking, and database transactions.",
+    tags: ["PHP", "MySQL", "JavaScript", "Bootstrap"],
+    liveUrl: "https://www.yudhakaryabarokah.com/index.php",
+    repoUrl: ""
+  },
+  {
     title: "Desa Cibening Information System",
-    desc: "Information system that manages public information, the budget, staff, and other general information within the Cibening Village Office administration.",
-    tags: ["PHP", "MySQL"],
+    desc: "Village administration and public information system: population data and statistics, officials, development programs, budget transparency, and public content, with Admin, Village Head, and Resident roles.",
+    tags: ["PHP", "MySQL", "JavaScript", "Bootstrap"],
     liveUrl: "https://desa-cibening.com/index.php",
     repoUrl: ""
   },
   {
     title: "IT-System",
-    desc: "IT asset inventory system for tracking data and the status of the company's computer equipment.",
-    tags: ["PHP", "MySQL"],
+    desc: "Internal IT asset management app: asset, printer and cartridge inventory, IP address management, maintenance history, role-based access, and reports.",
+    tags: ["PHP", "MySQL", "JavaScript", "Bootstrap"],
     liveUrl: "",
     repoUrl: "https://github.com/Djodyyy/IT-System"
   },
   {
-    title: "Shipment, Invoice & Approval System",
-    desc: "A web-based application for PT Yudha Karya Barokah that helps the company manage shipping, invoicing, and approval processes.",
-    tags: ["PHP", "MySQL"],
-    liveUrl: "https://www.yudhakaryabarokah.com/index.php",
-    repoUrl: ""
-  },
-  {
     title: "Dure Family Coffee",
-    desc: "A point-of-sale and inventory management system for Dure Family Coffee.",
-    tags: ["JavaScript"],
+    desc: "Cafe cashier and inventory system with cost calculation for daily operations.",
+    tags: ["Node.js", "Express", "React", "MySQL"],
     liveUrl: "",
     repoUrl: "https://github.com/Djodyyy/dure-family-coffee"
   },
   {
     title: "Jawara Group",
-    desc: "A management system for handling operations and membership within an MLM (multi-level marketing) business model.",
-    tags: ["PHP", "MySQL"],
+    desc: "MLM management system: member and non-member pricing, member registration, and a sponsor/upline/downline network tree with levels and ranks.",
+    tags: ["PHP", "MySQL", "JavaScript", "Bootstrap"],
     liveUrl: "",
     repoUrl: "https://github.com/Djodyyy/Jawara-Group"
   }
@@ -44,7 +44,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* ---------- Starfield ambient background ---------- */
+/* ---------- Starfield (sized to the viewport, not the whole page) ---------- */
 (function starfield(){
   const canvas = document.getElementById('starfield');
   const ctx = canvas.getContext('2d');
@@ -52,8 +52,8 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
   function resize(){
     w = canvas.width = window.innerWidth;
-    h = canvas.height = document.documentElement.scrollHeight;
-    const count = Math.floor((w * Math.min(h, 3000)) / 9000);
+    h = canvas.height = window.innerHeight;
+    const count = Math.floor((w * h) / 9000);
     stars = Array.from({length: count}, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -82,11 +82,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   requestAnimationFrame(draw);
 })();
 
-/* ---------- Constellation map for projects ---------- */
-(function constellation(){
+/* ---------- Projects: every card visible, stars jump to their card ---------- */
+(function projects(){
   const svg = document.getElementById('constellation-svg');
   const cardsWrap = document.getElementById('project-cards');
-  const mobileWrap = document.getElementById('project-list-mobile');
   const NS = 'http://www.w3.org/2000/svg';
 
   const layout = [
@@ -94,13 +93,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     {x: 560, y: 360}, {x: 260, y: 320}, {x: 60, y: 400}, {x: 780, y: 60}
   ];
 
-  PROJECTS.forEach((p, i) => {
-    const pos = layout[i % layout.length];
-    p._pos = pos;
-  });
+  PROJECTS.forEach((p, i) => { p._pos = layout[i % layout.length]; });
 
   for(let i = 0; i < PROJECTS.length - 1; i++){
-    const a = PROJECTS[i]._pos, b = PROJECTS[i+1]._pos;
+    const a = PROJECTS[i]._pos, b = PROJECTS[i + 1]._pos;
     const line = document.createElementNS(NS, 'line');
     line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
     line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
@@ -113,7 +109,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     g.setAttribute('class', 'const-node');
     g.setAttribute('tabindex', '0');
     g.setAttribute('role', 'button');
-    g.setAttribute('aria-label', 'View project details: ' + p.title);
+    g.setAttribute('aria-label', 'Go to project: ' + p.title);
     g.dataset.index = i;
 
     const circle = document.createElementNS(NS, 'circle');
@@ -128,25 +124,23 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     label.textContent = p.title;
     g.appendChild(label);
 
-    g.addEventListener('click', () => selectProject(i));
-    g.addEventListener('keydown', (e) => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectProject(i); } });
-
+    g.addEventListener('click', () => selectProject(i, true));
+    g.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); selectProject(i, true); }
+    });
     svg.appendChild(g);
   });
 
-  PROJECTS.forEach((p, i) => {
-    cardsWrap.appendChild(buildCard(p, i, true));
-    mobileWrap.appendChild(buildCard(p, i, false));
-  });
+  PROJECTS.forEach((p, i) => cardsWrap.appendChild(buildCard(p, i)));
 
-  function buildCard(p, i, isDesktop){
+  function buildCard(p, i){
     const card = document.createElement('div');
-    card.className = 'project-card' + (isDesktop ? '' : ' visible');
-    if(isDesktop) card.id = 'card-' + i;
+    card.className = 'project-card visible';
+    card.id = 'card-' + i;
 
     const indexEl = document.createElement('div');
     indexEl.className = 'p-index';
-    indexEl.textContent = `TARGET ${String(i+1).padStart(2,'0')} / ${String(PROJECTS.length).padStart(2,'0')}`;
+    indexEl.textContent = `PROJECT ${String(i + 1).padStart(2, '0')} / ${String(PROJECTS.length).padStart(2, '0')}`;
 
     const h3 = document.createElement('h3');
     h3.textContent = p.title;
@@ -166,29 +160,27 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
     const linksRow = document.createElement('div');
     linksRow.className = 'p-links';
-    if(p.liveUrl){
+    [[p.liveUrl, 'Live site →'], [p.repoUrl, 'Source code →']].forEach(([url, text]) => {
+      if(!url) return;
       const a = document.createElement('a');
-      a.href = p.liveUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
-      a.textContent = 'Watch Live →';
+      a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      a.textContent = text;
       linksRow.appendChild(a);
-    }
-    if(p.repoUrl){
-      const a = document.createElement('a');
-      a.href = p.repoUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
-      a.textContent = 'Source Code →';
-      linksRow.appendChild(a);
-    }
+    });
 
     card.append(indexEl, h3, desc, tagRow, linksRow);
     return card;
   }
 
-  function selectProject(i){
-    document.querySelectorAll('.const-node').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.const-node[data-index="${i}"]`).classList.add('active');
-    document.querySelectorAll('#project-cards .project-card').forEach(c => c.classList.remove('visible'));
-    document.getElementById('card-' + i).classList.add('visible');
+  function selectProject(i, scroll){
+    document.querySelectorAll('.const-node').forEach(n => n.classList.toggle('active', n.dataset.index === String(i)));
+    document.querySelectorAll('.project-card').forEach(c => c.classList.toggle('selected', c.id === 'card-' + i));
+    if(scroll){
+      document.getElementById('card-' + i).scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+    }
   }
 
-  if(PROJECTS.length) selectProject(0);
+  if (PROJECTS.length) selectProject(0, false);
+  
 })();
+

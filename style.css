@@ -248,3 +248,6 @@
     .rocket-flame{ animation:none; }
     .astronaut-float{ animation:none; }
   }
+
+  #project-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:24px}
+.project-card.selected{border-color:var(--star-gold)}
