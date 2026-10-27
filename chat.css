@@ -16,8 +16,9 @@
 
 .orbit-panel{
   position:fixed; right:20px; bottom:96px; z-index:60;
-  width:min(380px, calc(100vw - 40px)); height:min(540px, calc(100vh - 128px));
+  width:min(440px, calc(100vw - 40px)); height:min(620px, calc(100vh - 128px));
   display:flex; flex-direction:column;
+  padding:0; /* override the global section{padding:120px 0} from style.css */
   background:var(--bg-panel); border:1px solid var(--line-faint); border-radius:var(--radius);
   box-shadow:0 20px 60px rgba(0,0,0,.55);
 }
